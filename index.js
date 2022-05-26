@@ -3,9 +3,10 @@ const app = express();
 const cors = require("cors");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 app.use(cors());
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -27,10 +28,23 @@ async function run() {
     console.log("Connected successfully to server");
 
     const toolsCollection = client.db("toolsDB").collection("toolsCollection");
+    const orderCollection = client.db("toolsDB").collection("orderCollection");
 
+    // Read all tools data
     app.get("/tools", async (req, res) => {
       const tools = await toolsCollection.find({}).toArray();
       res.send(tools);
+    });
+
+    app.get("/tool/:id", async (req, res) => {
+      const productId = req.params.id;
+      const tool = await toolsCollection.findOne({ _id: ObjectId(productId) });
+      res.send(tool);
+    });
+
+    app.post("/order", async (req, res) => {
+      const order = await orderCollection.insertOne(req.body.order);
+      res.send(order);
     });
   } finally {
     // Ensures that the client will close when you finish/error
