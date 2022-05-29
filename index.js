@@ -79,6 +79,7 @@ async function run() {
     // Read specific user data order data
     app.get("/orders/:email", JwtAuth, async (req, res) => {
       const email = req.params.email;
+      console.log(email);
       const orders = await orderCollection.find({ userEmail: email }).toArray();
       res.send(orders);
     });
@@ -133,6 +134,28 @@ async function run() {
       );
       console.log(user);
       res.send({ user, token });
+    });
+
+    app.put("/user/update/:email", JwtAuth, async (req, res) => {
+      const email = req.params.email;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updatedUser = req.body;
+      console.log(req.body);
+      const newUser = {
+        $set: {
+          ...updatedUser,
+        },
+      };
+      const user = await userCollection.updateOne(filter, newUser, options);
+      res.send(user);
+    });
+
+    app.get("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      console.log(email);
+      const user = await userCollection.findOne({ email: email });
+      res.send(user);
     });
   } finally {
     // Ensures that the client will close when you finish/error
