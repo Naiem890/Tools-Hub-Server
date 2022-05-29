@@ -133,7 +133,7 @@ async function run() {
       res.send(user);
     }); */
 
-    app.get("/users", async (req, res) => {
+    app.get("/users", JwtAuth, async (req, res) => {
       const users = await userCollection.find({}).toArray();
       res.send(users);
     });
