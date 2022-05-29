@@ -59,9 +59,18 @@ async function run() {
 
     // Read tool data by id
     app.get("/tool/:id", async (req, res) => {
+      console.log(id);
       const productId = req.params.id;
       const tool = await toolsCollection.findOne({ _id: ObjectId(productId) });
       res.send(tool);
+    });
+
+    app.delete("/tool/:id", async (req, res) => {
+      console.log(req.params.id);
+      const deletedTools = await toolsCollection.deleteOne({
+        _id: ObjectId(req.params.id),
+      });
+      res.send(deletedTools);
     });
 
     //Post order in to database
@@ -118,6 +127,11 @@ async function run() {
       res.send(user);
     }); */
 
+    app.get("/users", async (req, res) => {
+      const users = await userCollection.find({}).toArray();
+      res.send(users);
+    });
+
     app.put("/user/:email", async (req, res) => {
       const email = req.params.email;
       const filter = { email: email };
@@ -151,11 +165,38 @@ async function run() {
       res.send(user);
     });
 
+    // Delete  user data
+    app.delete("/user/:email", async (req, res) => {
+      console.log(req.params.email);
+      const deletedUser = await userCollection.deleteOne({
+        email: req.params.email,
+      });
+      res.send(deletedUser);
+    });
+
     app.get("/user/:email", async (req, res) => {
       const email = req.params.email;
       console.log(email);
       const user = await userCollection.findOne({ email: email });
       res.send(user);
+    });
+
+    app.get("/admin/:email", JwtAuth, async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollection.findOne({ email: email });
+      const isAdmin = user?.role == "admin";
+      res.send(isAdmin);
+    });
+
+    app.put("/user/admin/:email", JwtAuth, async (req, res) => {
+      const email = req.params.email;
+      console.log(email);
+      const filter = { email: email };
+      const updateDoc = {
+        $set: { role: "admin" },
+      };
+      const result = await userCollection.updateOne(filter, updateDoc);
+      res.send(result);
     });
   } finally {
     // Ensures that the client will close when you finish/error
