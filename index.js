@@ -57,10 +57,16 @@ async function run() {
       res.send(tools);
     });
 
+    //Post post in to database
+    app.post("/tool", async (req, res) => {
+      const tool = await toolsCollection.insertOne(req.body.updatedInfo);
+      res.send(tool);
+    });
+
     // Read tool data by id
     app.get("/tool/:id", async (req, res) => {
-      console.log(id);
       const productId = req.params.id;
+      // console.log(id);
       const tool = await toolsCollection.findOne({ _id: ObjectId(productId) });
       res.send(tool);
     });
